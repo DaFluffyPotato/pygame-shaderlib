@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>texturelib &mdash; Pygame Shaderlib  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Pygame Shaderlib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Pygame Shaderlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>texturelib</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for texturelib</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">OpenGL.GL</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">OpenGL.GLU</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">OpenGL.GL.ARB.framebuffer_object</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">OpenGL.GL.EXT.framebuffer_object</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">pygame</span>
+
+<div class="viewcode-block" id="Texture"><a class="viewcode-back" href="../texturelib.html#texturelib.Texture">[docs]</a><span class="k">class</span> <span class="nc">Texture</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span> <span class="c1"># file source</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># surface source</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img</span> <span class="o">=</span> <span class="n">src</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tex_data</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">,</span> <span class="s1">&#39;RGBA&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tex_id</span> <span class="o">=</span> <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tex_id</span><span class="p">)</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_NEAREST</span><span class="p">)</span> <span class="c1"># GL_LINEAR_MIPMAP_LINEAR</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_NEAREST</span><span class="p">)</span>
+        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tex_data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Texture.set"><a class="viewcode-back" href="../texturelib.html#texturelib.Texture.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tex_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Texture.delete"><a class="viewcode-back" href="../texturelib.html#texturelib.Texture.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">glDeleteTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tex_id</span><span class="p">])</span></div></div>
+
+<div class="viewcode-block" id="WrappedTexture"><a class="viewcode-back" href="../texturelib.html#texturelib.WrappedTexture">[docs]</a><span class="k">class</span> <span class="nc">WrappedTexture</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">texture</span> <span class="o">=</span> <span class="n">Texture</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdimensions</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">dimensions</span> <span class="k">if</span> <span class="n">window</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">get_size</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdimensions</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="WrappedTexture.set_shader"><a class="viewcode-back" href="../texturelib.html#texturelib.WrappedTexture.set_shader">[docs]</a>    <span class="k">def</span> <span class="nf">set_shader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shader</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span> <span class="o">=</span> <span class="n">shader</span></div>
+
+<div class="viewcode-block" id="WrappedTexture.draw"><a class="viewcode-back" href="../texturelib.html#texturelib.WrappedTexture.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="n">vec_rect</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdimensions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">apply_rect</span><span class="p">(</span><span class="n">vec_rect</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">primary_tex</span><span class="p">:</span>
+                <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">primary_tex</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">glDrawArrays</span><span class="p">(</span><span class="n">GL_QUADS</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="c1"># the 4 is the vertex count</span></div>
+
+<div class="viewcode-block" id="WrappedTexture.to_surf"><a class="viewcode-back" href="../texturelib.html#texturelib.WrappedTexture.to_surf">[docs]</a>    <span class="k">def</span> <span class="nf">to_surf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="c1"># generate target texture and parameters</span>
+        <span class="n">render_target</span> <span class="o">=</span> <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">render_target</span><span class="p">)</span>
+        <span class="n">glTexEnvf</span><span class="p">(</span><span class="n">GL_TEXTURE_ENV</span><span class="p">,</span> <span class="n">GL_TEXTURE_ENV_MODE</span><span class="p">,</span> <span class="n">GL_MODULATE</span><span class="p">)</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_S</span><span class="p">,</span> <span class="n">GL_REPEAT</span><span class="p">)</span>
+        <span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_WRAP_T</span><span class="p">,</span> <span class="n">GL_REPEAT</span><span class="p">)</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_NEAREST</span><span class="p">)</span>
+        <span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_NEAREST</span><span class="p">)</span>
+        <span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_INT</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># generate framebuffer</span>
+        <span class="n">fbo</span><span class="o">=</span><span class="n">c_uint</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">glGenFramebuffers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">fbo</span><span class="p">)</span>
+        <span class="n">glBindFramebufferEXT</span><span class="p">(</span><span class="n">GL_FRAMEBUFFER_EXT</span><span class="p">,</span> <span class="n">fbo</span><span class="p">)</span>
+        <span class="n">glFramebufferTexture2DEXT</span><span class="p">(</span><span class="n">GL_FRAMEBUFFER_EXT</span><span class="p">,</span> <span class="n">GL_COLOR_ATTACHMENT0_EXT</span><span class="p">,</span> <span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">render_target</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">glPushAttrib</span><span class="p">(</span><span class="n">GL_VIEWPORT_BIT</span><span class="p">)</span>
+
+        <span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="n">glEnable</span><span class="p">(</span><span class="n">GL_BLEND</span><span class="p">)</span>
+        <span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL_ONE_MINUS_SRC_ALPHA</span><span class="p">)</span>
+
+        <span class="n">glClearColor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span><span class="o">|</span><span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="c1"># switch back to normal rendering</span>
+        <span class="n">glPopAttrib</span><span class="p">()</span>
+        <span class="n">glBindFramebufferEXT</span><span class="p">(</span><span class="n">GL_FRAMEBUFFER_EXT</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">render_target</span><span class="p">)</span>
+        <span class="n">raw_tex_data</span> <span class="o">=</span> <span class="n">glGetTexImage</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">)</span>
+        <span class="n">pg_surf</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">raw_tex_data</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="s1">&#39;RGBA&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">glDeleteTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="n">render_target</span><span class="p">])</span>
+        <span class="n">glDeleteFramebuffers</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pg_surf</span></div>
+
+<div class="viewcode-block" id="WrappedTexture.delete"><a class="viewcode-back" href="../texturelib.html#texturelib.WrappedTexture.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, DaFluffyPatato.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
